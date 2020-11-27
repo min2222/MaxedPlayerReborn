@@ -54,6 +54,12 @@ public class ElementsKriltsutsarothMod implements IFuelHandler, IWorldGenerator 
 	public final List<Supplier<Potion>> potions = new ArrayList<>();
 	public static Map<ResourceLocation, net.minecraft.util.SoundEvent> sounds = new HashMap<>();
 	public ElementsKriltsutsarothMod() {
+		sounds.put(new ResourceLocation("kriltsutsaroth", "random.pop"),
+				new net.minecraft.util.SoundEvent(new ResourceLocation("kriltsutsaroth", "random.pop")));
+		sounds.put(new ResourceLocation("kriltsutsaroth", "random.fizz"),
+				new net.minecraft.util.SoundEvent(new ResourceLocation("kriltsutsaroth", "random.fizz")));
+		sounds.put(new ResourceLocation("kriltsutsaroth", "random.breath"),
+				new net.minecraft.util.SoundEvent(new ResourceLocation("kriltsutsaroth", "random.breath")));
 	}
 
 	public void preInit(FMLPreInitializationEvent event) {

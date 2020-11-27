@@ -45,7 +45,7 @@ import java.util.function.Supplier;
 @Mod(modid = KriltsutsarothMod.MODID, version = KriltsutsarothMod.VERSION)
 public class KriltsutsarothMod {
 	public static final String MODID = "kriltsutsaroth";
-	public static final String VERSION = "1.0.0";
+	public static final String VERSION = "1.0.1";
 	public static final SimpleNetworkWrapper PACKET_HANDLER = NetworkRegistry.INSTANCE.newSimpleChannel("kriltsutsaroth:a");
 	@SidedProxy(clientSide = "com.min01.kriltsutsaroth.ClientProxyKriltsutsarothMod", serverSide = "com.min01.kriltsutsaroth.ServerProxyKriltsutsarothMod")
 	public static IProxyKriltsutsarothMod proxy;

@@ -34,37 +34,36 @@ import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.Minecraft;
 
-import java.util.Random;
 import com.min01.kriltsutsaroth.ElementsKriltsutsarothMod;
 
 @ElementsKriltsutsarothMod.ModElement.Tag
-public class ItemMysticIceStaff extends ElementsKriltsutsarothMod.ModElement {
-	@GameRegistry.ObjectHolder("kriltsutsaroth:mystic_ice_staff")
+public class ItemPolyporeStaff extends ElementsKriltsutsarothMod.ModElement {
+	@GameRegistry.ObjectHolder("kriltsutsaroth:polypore_staff")
 	public static final Item block = null;
-	public static final int ENTITYID = 22;
-	public ItemMysticIceStaff(ElementsKriltsutsarothMod instance) {
-		super(instance, 4);
+	public static final int ENTITYID = 30;
+	public ItemPolyporeStaff(ElementsKriltsutsarothMod instance) {
+		super(instance, 13);
 	}
 
 	@Override
 	public void initElements() {
 		elements.items.add(() -> new RangedItem());
 		elements.entities.add(() -> EntityEntryBuilder.create().entity(EntityArrowCustom.class)
-				.id(new ResourceLocation("kriltsutsaroth", "entitybulletmystic_ice_staff"), ENTITYID).name("entitybulletmystic_ice_staff")
+				.id(new ResourceLocation("kriltsutsaroth", "entitybulletpolypore_staff"), ENTITYID).name("entitybulletpolypore_staff")
 				.tracker(64, 1, true).build());
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerModels(ModelRegistryEvent event) {
-		ModelLoader.setCustomModelResourceLocation(block, 0, new ModelResourceLocation("kriltsutsaroth:mystic_ice_staff", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(block, 0, new ModelResourceLocation("kriltsutsaroth:polypore_staff", "inventory"));
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		RenderingRegistry.registerEntityRenderingHandler(EntityArrowCustom.class, renderManager -> {
-			return new RenderSnowball(renderManager, new ItemStack(Items.SNOWBALL, (int) (1)).getItem(), Minecraft.getMinecraft().getRenderItem());
+			return new RenderSnowball(renderManager, new ItemStack(Items.SLIME_BALL, (int) (1)).getItem(), Minecraft.getMinecraft().getRenderItem());
 		});
 	}
 	public static class RangedItem extends Item {
@@ -72,15 +71,14 @@ public class ItemMysticIceStaff extends ElementsKriltsutsarothMod.ModElement {
 			super();
 			setMaxDamage(100);
 			setFull3D();
-			setUnlocalizedName("mystic_ice_staff");
-			setRegistryName("mystic_ice_staff");
+			setUnlocalizedName("polypore_staff");
+			setRegistryName("polypore_staff");
 			maxStackSize = 1;
 			setCreativeTab(CreativeTabs.COMBAT);
 		}
 
 		@Override
 		public void onPlayerStoppedUsing(ItemStack itemstack, World world, EntityLivingBase entityLivingBase, int timeLeft) {
-			for (int i = 0; i < 15; i++) {
 			if (!world.isRemote && entityLivingBase instanceof EntityPlayerMP) {
 				EntityPlayerMP entity = (EntityPlayerMP) entityLivingBase;
 				float power = 1f;
@@ -91,10 +89,6 @@ public class ItemMysticIceStaff extends ElementsKriltsutsarothMod.ModElement {
 				entityarrow.setDamage(35);
 				entityarrow.setKnockbackStrength(1);
 				itemstack.damageItem(1, entity);
-		        Random rand = new Random();
-		        entityarrow.motionX += rand.nextGaussian() * 0.2D;
-		        entityarrow.motionY *= Math.random() * 0.2D + 0.9D;
-		        entityarrow.motionZ += rand.nextGaussian() * 0.2D;
 				int x = (int) entity.posX;
 				int y = (int) entity.posY;
 				int z = (int) entity.posZ;
@@ -104,7 +98,6 @@ public class ItemMysticIceStaff extends ElementsKriltsutsarothMod.ModElement {
 				entityarrow.pickupStatus = EntityArrow.PickupStatus.DISALLOWED;
 				if (!world.isRemote)
 					world.spawnEntity(entityarrow);
-			}
 			}
 		}
 
@@ -142,11 +135,7 @@ public class ItemMysticIceStaff extends ElementsKriltsutsarothMod.ModElement {
 		protected void arrowHit(EntityLivingBase entity) {
 			super.arrowHit(entity);
 			entity.setArrowCountInEntity(entity.getArrowCountInEntity() - 1);
-			int x = (int) this.posX;
-			int y = (int) this.posY;
-			int z = (int) this.posZ;
-			World world = this.world;
-			entity.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 200, 5));
+			entity.addPotionEffect(new PotionEffect(MobEffects.POISON, 200, 10));
 		}
 
 		@Override
@@ -159,7 +148,7 @@ public class ItemMysticIceStaff extends ElementsKriltsutsarothMod.ModElement {
 			Entity entity = (Entity) shootingEntity;
 			int var9;
 			for (var9 = 0; var9 < 4; var9++)
-		        this.world.spawnParticle(EnumParticleTypes.SNOWBALL, this.posX + this.motionX * var9 / 4.0D, this.posY + this.motionY * var9 / 4.0D, this.posZ + this.motionZ * var9 / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ); 
+		        this.world.spawnParticle(EnumParticleTypes.SLIME, this.posX + this.motionX * var9 / 4.0D, this.posY + this.motionY * var9 / 4.0D, this.posZ + this.motionZ * var9 / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ);
 			if (this.inGround) {
 				this.world.removeEntity(this);
 			}

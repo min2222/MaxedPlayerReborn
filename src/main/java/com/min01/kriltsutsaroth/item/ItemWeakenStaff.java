@@ -19,53 +19,53 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.ActionResult;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.item.Item;
 import net.minecraft.item.EnumAction;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.MobEffects;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.Entity;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBox;
-import net.minecraft.client.model.ModelLeashKnot;
-import net.minecraft.client.model.ModelRenderer;
-
-import java.util.Map;
-import java.util.Random;
+import net.minecraft.client.Minecraft;
 
 import com.min01.kriltsutsaroth.ElementsKriltsutsarothMod;
+import com.min01.kriltsutsaroth.item.ItemMysticEarthStaff.EntityArrowCustom;
 
 @ElementsKriltsutsarothMod.ModElement.Tag
-public class ItemMysticFireStaff extends ElementsKriltsutsarothMod.ModElement {
-	@GameRegistry.ObjectHolder("kriltsutsaroth:mystic_fire_staff")
+public class ItemWeakenStaff extends ElementsKriltsutsarothMod.ModElement {
+	@GameRegistry.ObjectHolder("kriltsutsaroth:weaken_staff")
 	public static final Item block = null;
-	public static final int ENTITYID = 21;
-	public ItemMysticFireStaff(ElementsKriltsutsarothMod instance) {
-		super(instance, 2);
+	public static final int ENTITYID = 26;
+	public ItemWeakenStaff(ElementsKriltsutsarothMod instance) {
+		super(instance, 9);
 	}
 
 	@Override
 	public void initElements() {
 		elements.items.add(() -> new RangedItem());
 		elements.entities.add(() -> EntityEntryBuilder.create().entity(EntityArrowCustom.class)
-				.id(new ResourceLocation("kriltsutsaroth", "entitybulletmystic_fire_staff"), ENTITYID).name("entitybulletmystic_fire_staff")
+				.id(new ResourceLocation("kriltsutsaroth", "entitybulletweaken_staff"), ENTITYID).name("entitybulletweaken_staff")
 				.tracker(64, 1, true).build());
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerModels(ModelRegistryEvent event) {
-		ModelLoader.setCustomModelResourceLocation(block, 0, new ModelResourceLocation("kriltsutsaroth:mystic_fire_staff", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(block, 0, new ModelResourceLocation("kriltsutsaroth:weaken_staff", "inventory"));
 	}
 
 	public static class RangedItem extends Item {
@@ -73,16 +73,14 @@ public class ItemMysticFireStaff extends ElementsKriltsutsarothMod.ModElement {
 			super();
 			setMaxDamage(100);
 			setFull3D();
-			setUnlocalizedName("mystic_fire_staff");
-			setRegistryName("mystic_fire_staff");
+			setUnlocalizedName("weaken_staff");
+			setRegistryName("weaken_staff");
 			maxStackSize = 1;
 			setCreativeTab(CreativeTabs.COMBAT);
 		}
 
-		  
 		@Override
 		public void onPlayerStoppedUsing(ItemStack itemstack, World world, EntityLivingBase entityLivingBase, int timeLeft) {
-			 for (int i = 0; i < 15; i++) {
 			if (!world.isRemote && entityLivingBase instanceof EntityPlayerMP) {
 				EntityPlayerMP entity = (EntityPlayerMP) entityLivingBase;
 				float power = 1f;
@@ -92,28 +90,17 @@ public class ItemMysticFireStaff extends ElementsKriltsutsarothMod.ModElement {
 				entityarrow.setIsCritical(false);
 				entityarrow.setDamage(35);
 				entityarrow.setKnockbackStrength(1);
-				itemstack.damageItem(1, entity);  
-				/*float var7 = var6 / 20.0F;
-			    var7 = (var7 * var7 + var7 * 2.0F) / 3.0F;
-			    if (var7 < 0.8D)
-			    	return; 
-			    if (var7 > 1.0F)
-			    var7 = 1.0F;*/
-				Random rand = new Random();
-		        entityarrow.motionX += rand.nextGaussian() * 0.2D;
-		        entityarrow.motionY *= Math.random() * 0.2D + 0.9D;
-		        entityarrow.motionZ += rand.nextGaussian() * 0.2D;
+				itemstack.damageItem(1, entity);
 				int x = (int) entity.posX;
 				int y = (int) entity.posY;
 				int z = (int) entity.posZ;
 				world.playSound((EntityPlayer) null, (double) x, (double) y, (double) z,
-						(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY.getObject(new ResourceLocation(("kriltsutsaroth:random.fizz"))),
-						SoundCategory.NEUTRAL, 1, 1f / (itemRand.nextFloat() * 0.4f + 1.2f) + (power / 2));
+						(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY.getObject(new ResourceLocation(("kriltsutsaroth:random.pop"))),
+						SoundCategory.NEUTRAL, 1, 1f / (itemRand.nextFloat() * 0.5f + 1f) + (power / 2));
 				entityarrow.pickupStatus = EntityArrow.PickupStatus.DISALLOWED;
 				if (!world.isRemote)
 					world.spawnEntity(entityarrow);
 			}
-			 }
 		}
 
 		@Override
@@ -150,7 +137,11 @@ public class ItemMysticFireStaff extends ElementsKriltsutsarothMod.ModElement {
 		protected void arrowHit(EntityLivingBase entity) {
 			super.arrowHit(entity);
 			entity.setArrowCountInEntity(entity.getArrowCountInEntity() - 1);
-			entity.setFire(5);
+			double max = 0.0D;
+			max = entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue(); 
+			if(entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE) != null) {
+            entity.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, 200, Math.max((int)(max * 3.0D / 2.0D), 5)));
+			}
 		}
 
 		@Override
@@ -161,10 +152,9 @@ public class ItemMysticFireStaff extends ElementsKriltsutsarothMod.ModElement {
 			int z = (int) this.posZ;
 			World world = this.world;
 			Entity entity = (Entity) shootingEntity;
-			this.setFire(100);
-			int var9;	
+			int var9;
 			for (var9 = 0; var9 < 4; var9++)
-				 this.world.spawnParticle(EnumParticleTypes.LAVA, this.posX + this.motionX * var9 / 4.0D, this.posY + this.motionY * var9 / 4.0D, this.posZ + this.motionZ * var9 / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ); 
+		        this.world.spawnParticle(EnumParticleTypes.WATER_SPLASH, this.posX + this.motionX * var9 / 4.0D, this.posY + this.motionY * var9 / 4.0D, this.posZ + this.motionZ * var9 / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ); 
 			if (this.inGround) {
 				this.world.removeEntity(this);
 			}

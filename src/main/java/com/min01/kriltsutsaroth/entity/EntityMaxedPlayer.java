@@ -11,23 +11,14 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumHand;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.entity.projectile.EntityDragonFireball;
-import net.minecraft.entity.projectile.EntityLargeFireball;
-import net.minecraft.entity.projectile.EntitySmallFireball;
-import net.minecraft.entity.projectile.EntitySnowball;
-import net.minecraft.entity.projectile.EntityTippedArrow;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAISwimming;
@@ -36,6 +27,7 @@ import net.minecraft.entity.ai.EntityAILookIdle;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAIAttackRanged;
+import net.minecraft.entity.ai.EntityAIAttackRangedBow;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.IRangedAttackMob;
@@ -43,7 +35,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.client.renderer.entity.RenderBiped;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelZombie;
 
@@ -51,11 +42,15 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 import com.min01.kriltsutsaroth.ElementsKriltsutsarothMod;
+import com.min01.kriltsutsaroth.item.ItemBloodStaff;
+import com.min01.kriltsutsaroth.item.ItemDeathStaff;
 import com.min01.kriltsutsaroth.item.ItemMysticAirStaff;
 import com.min01.kriltsutsaroth.item.ItemMysticEarthStaff;
 import com.min01.kriltsutsaroth.item.ItemMysticFireStaff;
 import com.min01.kriltsutsaroth.item.ItemMysticFireStaff.EntityArrowCustom;
 import com.min01.kriltsutsaroth.item.ItemMysticIceStaff;
+import com.min01.kriltsutsaroth.item.ItemPolyporeStaff;
+import com.min01.kriltsutsaroth.item.ItemWeakenStaff;
 
 @ElementsKriltsutsarothMod.ModElement.Tag
 public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
@@ -98,6 +93,8 @@ public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
 		});
 	}
 	public static class EntityCustom extends EntityMob implements IRangedAttackMob {
+	    private final EntityAIAttackRangedBow<EntityMaxedPlayer.EntityCustom> aiArrowAttack = new EntityAIAttackRangedBow<EntityMaxedPlayer.EntityCustom>(this, 0.30000001192092896D, 30, 10.0F);
+	    private final EntityAIAttackMelee aiAttackOnCollide = new EntityAIAttackMelee(this, 0.3100000023841858D, false);
 		boolean attacked;
 		int unretaliatedHits;
 		public EntityCustom(World world) {
@@ -115,12 +112,13 @@ public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
 		@Override
 		protected void initEntityAI() {
 			super.initEntityAI();
-			this.tasks.addTask(1, new EntityAIAttackRanged(this, 0.30000001192092896, 30, 10.0f));
+			this.tasks.addTask(1, new EntityAIAttackRanged(this, 0.30000001192092896D, 30, 10.0F));
 			this.tasks.addTask(2, new EntityAIWander(this, 1));
 			this.targetTasks.addTask(3, new EntityAIHurtByTarget(this, false));
 			this.targetTasks.addTask(4, new EntityAINearestAttackableTarget(this, EntityLiving.class, false, false));
 			this.tasks.addTask(5, new EntityAILookIdle(this));
 			this.tasks.addTask(6, new EntityAISwimming(this));
+			//this.tasks.addTask(7, new EntityAIAttackMelee(this, 0.3100000023841858D, false));
 		}
 
 		@Override
@@ -184,18 +182,53 @@ public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
 	            {
 	                rand2 = Math.random() * 6.0;
 	            }
-	            if (rand2 > 4.0) {
-	                this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemMysticAirStaff.block, (int) (1)));
+	            if (rand2 > 8.0) {
+	                this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemWeakenStaff.block, (int) (1)));
 	            }
-	            else if (rand2 > 3.0) {
-	            	 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemMysticFireStaff.block, (int) (1)));
+	            else if(rand2 > 7.0)
+	            {
+	            	 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemDeathStaff.block, (int) (1)));
 	            }
-	            else if (rand2 > 2.0) {
-	            	 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemMysticIceStaff.block, (int) (1)));
+	            else if(rand2 > 6.0)
+	            {
+	            	 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemBloodStaff.block, (int) (1)));
 	            }
-	            else if(rand2 > 1.0)
+	            else if(rand2 > 5.0)
+	            {
+	            	 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemPolyporeStaff.block, (int) (1)));
+	            }
+	            /*else if(rand2 > 5.0)
+	            {
+	            	 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.APPLE, (int) (1)));
+	            }*/
+	            /*else if(rand2 > 5.0)
+	            {
+	                if (this.world.getDifficulty().getDifficultyId() == 3) {
+	                    //setCurrentItemOrArmor(0, new ItemStack(Wildycraft.chaoticsword));
+	                    this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.APPLE, (int) (1)));
+	                    getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(120.0D);
+	                  } else {
+	                    //setCurrentItemOrArmor(0, new ItemStack(Wildycraft.dragonsword));
+	                    this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.APPLE, (int) (1)));
+	                    getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(60.0D);
+	                  }
+	            }*/
+	            else if (rand2 > 4.0) 
+	            {
+	            	this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemMysticAirStaff.block, (int) (1)));
+	            }
+	            else if (rand2 > 3.0) 
+	            {
+	            	this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemMysticIceStaff.block, (int) (1)));
+	            }
+	            else if (rand2 > 2.0) 
 	            {
 	            	 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemMysticEarthStaff.block, (int) (1)));
+	            }
+	            else if (rand2 > 1.0)
+	            {
+	            	 
+	            	 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ItemMysticFireStaff.block, (int) (1)));
 	            }
 	            this.attacked = false;
 	        }
@@ -212,6 +245,23 @@ public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
 	        }
 	        return false;
 	    }
+	    
+	    public void setCombatTask()
+	    {
+	            this.tasks.removeTask(this.aiAttackOnCollide);
+	            this.tasks.removeTask(this.aiArrowAttack);
+	            ItemStack var1 = this.getHeldItemMainhand();
+
+	            if (var1 != null && (var1.getItem() == ItemMysticFireStaff.block || var1.getItem() == ItemMysticAirStaff.block || var1.getItem() == ItemMysticIceStaff.block || var1.getItem() == ItemMysticEarthStaff.block ||
+	            		var1.getItem() == ItemWeakenStaff.block || var1.getItem() == ItemBloodStaff.block || var1.getItem() == ItemDeathStaff.block || var1.getItem() == ItemPolyporeStaff.block))
+	            {
+	                this.tasks.addTask(4, this.aiArrowAttack);
+	            }
+	            else
+	            {
+	                this.tasks.addTask(4, this.aiAttackOnCollide);
+	            }
+	    }
 
 		@Override
 		public void attackEntityWithRangedAttack(EntityLivingBase target, float distanceFactor) {
@@ -220,7 +270,10 @@ public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
 				if (this.getHeldItemMainhand().getItem() == ItemMysticFireStaff.block) 
 				{   
 					EntityArrowCustom var2 = new EntityArrowCustom(this.world, this);
-	                this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0f, 1.0f / (this.getRNG().nextFloat() * 0.4f + 0.8f));
+					world.playSound((EntityPlayer) null, (double) this.posX, (double) this.posY, (double) this.posZ,
+							(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY
+									.getObject(new ResourceLocation(("kriltsutsaroth:random.fizz"))),
+							SoundCategory.NEUTRAL, 1, 1f / ((this.getRNG().nextFloat() * 0.4f + 0.8f)));
 	                final double d0 = target.posX - this.posX;
 		    	        final double d2 = target.posY + target.getEyeHeight() - 1.100000023841858 - var2.posY;
 		    	        final double d3 = target.posZ - this.posZ;
@@ -232,7 +285,10 @@ public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
 				else if (this.getHeldItemMainhand().getItem() == ItemMysticIceStaff.block) 
 				{
 					com.min01.kriltsutsaroth.item.ItemMysticIceStaff.EntityArrowCustom var2 = new com.min01.kriltsutsaroth.item.ItemMysticIceStaff.EntityArrowCustom(this.world, this);
-	                this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0f, 1.0f / (this.getRNG().nextFloat() * 0.4f + 0.8f));
+					world.playSound((EntityPlayer) null, (double) this.posX, (double) this.posY, (double) this.posZ,
+							(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY
+									.getObject(new ResourceLocation(("kriltsutsaroth:random.pop"))),
+							SoundCategory.NEUTRAL, 1, 1f / ((this.getRNG().nextFloat() * 0.4f + 0.8f)));
 	                this.world.spawnEntity((Entity)var2);
 	                final double d0 = target.posX - this.posX;
 	    	        final double d2 = target.posY + target.getEyeHeight() - 1.100000023841858 - var2.posY;
@@ -243,8 +299,11 @@ public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
 	            }
 				else if (this.getHeldItemMainhand().getItem() == ItemMysticAirStaff.block) 
 				{
-					EntityArrow var2 = this.getArrow(distanceFactor);
-	                this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0f, 1.0f / (this.getRNG().nextFloat() * 0.4f + 0.8f));
+					com.min01.kriltsutsaroth.item.ItemMysticAirStaff.EntityArrowCustom var2 = new com.min01.kriltsutsaroth.item.ItemMysticAirStaff.EntityArrowCustom(this.world, this);
+					world.playSound((EntityPlayer) null, (double) this.posX, (double) this.posY, (double) this.posZ,
+							(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY
+									.getObject(new ResourceLocation(("kriltsutsaroth:random.breath"))),
+							SoundCategory.NEUTRAL, 1, 1f / ((this.getRNG().nextFloat() * 0.4f + 0.8f)));
 	                this.world.spawnEntity((Entity)var2);
 	                final double d0 = target.posX - this.posX;
 	    	        final double d2 = target.posY + target.getEyeHeight() - 1.100000023841858 - var2.posY;
@@ -257,7 +316,70 @@ public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
 				else if (this.getHeldItemMainhand().getItem() == ItemMysticEarthStaff.block) 
 				{
 					com.min01.kriltsutsaroth.item.ItemMysticEarthStaff.EntityArrowCustom var2 = new com.min01.kriltsutsaroth.item.ItemMysticEarthStaff.EntityArrowCustom(this.world, this);
-	                this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0f, 1.0f / (this.getRNG().nextFloat() * 0.4f + 0.8f));
+					world.playSound((EntityPlayer) null, (double) this.posX, (double) this.posY, (double) this.posZ,
+							(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY
+									.getObject(new ResourceLocation(("kriltsutsaroth:random.pop"))),
+							SoundCategory.NEUTRAL, 1, 1f / ((this.getRNG().nextFloat() * 0.4f + 0.8f)));
+	                this.world.spawnEntity((Entity)var2);
+	                final double d0 = target.posX - this.posX;
+	    	        final double d2 = target.posY + target.getEyeHeight() - 1.100000023841858 - var2.posY;
+	    	        final double d3 = target.posZ - this.posZ;
+	    	        final float f1 = MathHelper.sqrt(d0 * d0 + d3 * d3) * 0.2f;
+	    	        var2.shoot(d0, d2 + f1, d3, 1.6f, 12.0f);
+	    	        var2.setDamage(35);
+	            }
+				else if (this.getHeldItemMainhand().getItem() == ItemWeakenStaff.block) 
+				{
+					com.min01.kriltsutsaroth.item.ItemWeakenStaff.EntityArrowCustom var2 = new com.min01.kriltsutsaroth.item.ItemWeakenStaff.EntityArrowCustom(this.world, this);
+					world.playSound((EntityPlayer) null, (double) this.posX, (double) this.posY, (double) this.posZ,
+							(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY
+									.getObject(new ResourceLocation(("kriltsutsaroth:random.pop"))),
+							SoundCategory.NEUTRAL, 1, 1f / ((this.getRNG().nextFloat() * 0.4f + 0.8f)));
+	                this.world.spawnEntity((Entity)var2);
+	                final double d0 = target.posX - this.posX;
+	    	        final double d2 = target.posY + target.getEyeHeight() - 1.100000023841858 - var2.posY;
+	    	        final double d3 = target.posZ - this.posZ;
+	    	        final float f1 = MathHelper.sqrt(d0 * d0 + d3 * d3) * 0.2f;
+	    	        var2.shoot(d0, d2 + f1, d3, 1.6f, 12.0f);
+	    	        var2.setDamage(35);
+	            }
+				else if (this.getHeldItemMainhand().getItem() == ItemDeathStaff.block) 
+				{
+					com.min01.kriltsutsaroth.item.ItemDeathStaff.EntityArrowCustom var2 = new com.min01.kriltsutsaroth.item.ItemDeathStaff.EntityArrowCustom(this.world, this);
+					world.playSound((EntityPlayer) null, (double) this.posX, (double) this.posY, (double) this.posZ,
+							(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY
+									.getObject(new ResourceLocation(("kriltsutsaroth:random.pop"))),
+							SoundCategory.NEUTRAL, 1, 1f / ((this.getRNG().nextFloat() * 0.4f + 0.8f)));
+	                this.world.spawnEntity((Entity)var2);
+	                final double d0 = target.posX - this.posX;
+	    	        final double d2 = target.posY + target.getEyeHeight() - 1.100000023841858 - var2.posY;
+	    	        final double d3 = target.posZ - this.posZ;
+	    	        final float f1 = MathHelper.sqrt(d0 * d0 + d3 * d3) * 0.2f;
+	    	        var2.shoot(d0, d2 + f1, d3, 1.6f, 12.0f);
+	    	        var2.setDamage(35);
+	            }
+				else if (this.getHeldItemMainhand().getItem() == ItemBloodStaff.block) 
+				{
+					com.min01.kriltsutsaroth.item.ItemBloodStaff.EntityArrowCustom var2 = new com.min01.kriltsutsaroth.item.ItemBloodStaff.EntityArrowCustom(this.world, this);
+					world.playSound((EntityPlayer) null, (double) this.posX, (double) this.posY, (double) this.posZ,
+							(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY
+									.getObject(new ResourceLocation(("kriltsutsaroth:random.pop"))),
+							SoundCategory.NEUTRAL, 1, 1f / ((this.getRNG().nextFloat() * 0.4f + 0.8f)));
+	                this.world.spawnEntity((Entity)var2);
+	                final double d0 = target.posX - this.posX;
+	    	        final double d2 = target.posY + target.getEyeHeight() - 1.100000023841858 - var2.posY;
+	    	        final double d3 = target.posZ - this.posZ;
+	    	        final float f1 = MathHelper.sqrt(d0 * d0 + d3 * d3) * 0.2f;
+	    	        var2.shoot(d0, d2 + f1, d3, 1.6f, 12.0f);
+	    	        var2.setDamage(35);
+	            }
+				else if (this.getHeldItemMainhand().getItem() == ItemPolyporeStaff.block) 
+				{
+					com.min01.kriltsutsaroth.item.ItemPolyporeStaff.EntityArrowCustom var2 = new com.min01.kriltsutsaroth.item.ItemPolyporeStaff.EntityArrowCustom(this.world, this);
+					world.playSound((EntityPlayer) null, (double) this.posX, (double) this.posY, (double) this.posZ,
+							(net.minecraft.util.SoundEvent) net.minecraft.util.SoundEvent.REGISTRY
+									.getObject(new ResourceLocation(("kriltsutsaroth:random.pop"))),
+							SoundCategory.NEUTRAL, 1, 1f / ((this.getRNG().nextFloat() * 0.4f + 0.8f)));
 	                this.world.spawnEntity((Entity)var2);
 	                final double d0 = target.posX - this.posX;
 	    	        final double d2 = target.posY + target.getEyeHeight() - 1.100000023841858 - var2.posY;
@@ -268,13 +390,6 @@ public class EntityMaxedPlayer extends ElementsKriltsutsarothMod.ModElement {
 	            }
 				}
 			}
-		
-	    protected EntityArrow getArrow(float p_190726_1_)
-	    {
-	        EntityTippedArrow entitytippedarrow = new EntityTippedArrow(this.world, this);
-	        entitytippedarrow.setEnchantmentEffectsFromEntity(this, p_190726_1_);
-	        return entitytippedarrow;
-	    }
 		@Override
 		public void setSwingingArms(boolean swingingArms) {
 			// TODO Auto-generated method stub
